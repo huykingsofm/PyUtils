@@ -3,7 +3,7 @@ import sys
 class Args():
     ALL = "all"
     ONLY = "only"
-    NO_APPEAR = "no appear"
+    NONE = "no appear"
     SOME = "some but all"
     def __init__(self, args : list, flagnames : list, parameternames : list):
         self.__args__ = args
@@ -103,7 +103,7 @@ class Args():
             return Args.ONLY
         
         if count == 0:
-            return Args.NO_APPEAR
+            return Args.NONE
         
         # some args appear
         return Args.SOME
@@ -125,7 +125,7 @@ class Args():
             return Args.ONLY
         
         if count == 0:
-            return Args.NO_APPEAR
+            return Args.NONE
         
         # some args appear
         return Args.SOME
