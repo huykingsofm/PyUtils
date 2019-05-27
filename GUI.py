@@ -1,10 +1,26 @@
+version = "1.0"
+
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QMessageBox, QInputDialog
 from PyQt5.QtWidgets import QLineEdit, QComboBox, QTabWidget, QPlainTextEdit, QFileDialog
-from PyQt5.QtCore import Qt, QCoreApplication, QUrl
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtCore import Qt, QCoreApplication, QUrl, QSize, QObject, pyqtSignal
+from PyQt5.QtGui import QFont, QIcon, QImage
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import wx
+
+class Communicate(QObject):
+    signal = pyqtSignal(str)
+    def connect(self, foo):
+        self.signal.connect(foo)
+
+    def emit(self, message):
+        self.signal.emit(message)
+
+def GetScreenSize():
+    a = wx.App(False)
+    return wx.GetDisplaySize()
+
+W_SCREEN, H_SCREEN = GetScreenSize()
 
 class App(QApplication):
     def __init__(self, title, listparam):
@@ -37,42 +53,18 @@ class App(QApplication):
         self.currentWindow = newWindow
 
 class Window(QWidget):
-    def __init__(self, width, height, dx, dy, parent):
+    def __init__(self, width, height, dx = None, dy = None, parent = None):
         super().__init__(parent)
         self.width = width
         self.height = height
         self.resize(width, height)
+        if dx == None:
+            dx = (W_SCREEN - width) / 2
+
+        if dy == None:
+            dy = int( 0.8 * ( H_SCREEN - height) / 2 )
+            
         self.move(dx, dy)
-
-    def showOnly(self, widget):
-        self.show()
-        children = self.findChildren(QWidget)
-        if (widget not in children):
-            raise Exception("subWidget not in window")
-
-        for child in children:
-            child.hide()
-
-        widget.show()
-
-    def switch(self, widget, show_mode = 'show', hide_mode = 'close'):
-        """ show another child widget and hide current child widget
-
-            show_mode = 'show' or 'not show'
-                if new widget is showed before, choose show_mode is 'not show'
-            hide_mode = 'hide' or 'close'
-                close will terminate current widget, otherwise, hide only make it to be invisible
-        """
-
-        children = self.findChildren(QWidget)
-        if (widget not in children):
-            raise Exception("Widget not in current window")
-
-        for child in children:
-            child.hide() if hide_mode == 'hide' else child.show()
-
-        if (show_mode == 'show'):
-            widget.show()
 
     def resize(self, x, y):
         self.width = x
@@ -82,8 +74,13 @@ class Window(QWidget):
     def getSize(self):
         return self.width, self.height
 
+    def setBackGroundImg(self, imgpath):
+        self.background = Button("", self.width, self.height, 0, 0, self)
+        self.background.setIcon(QIcon(imgpath))
+        self.background.setIconSize(QSize(self.width, self.height))
+
 class Button(QPushButton):
-    def __init__(self, text, width, height, dx, dy, parent):
+    def __init__(self, text, width, height, dx, dy, parent, border = False):
         self.width = width
         self.height = height
         super().__init__(text, parent)
@@ -91,6 +88,9 @@ class Button(QPushButton):
         self.move(dx, dy)
         font = QFont('SogoeUI', 10, 2)
         self.setFont(font)
+
+        if (border):
+            self.setStyleSheet("border : 1px solid black")
 
     def SetClickedEvent(self, method):
         self.clicked.connect(method)
@@ -257,6 +257,3 @@ class WebView(QWebEngineView):
     def getSize(self):
         return self.width, self.height
 
-def GetScreenSize():
-    a = wx.App(False)
-    return wx.GetDisplaySize()

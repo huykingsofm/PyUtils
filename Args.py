@@ -1,3 +1,4 @@
+version = "1.0"
 import sys
 
 class Args():
@@ -22,6 +23,33 @@ class Args():
         self.parameters = self.__get_parameters__(self.__uniquenames__[self.__splitposition__ : ]) 
         self.flags = self.__get_flags__(self.__uniquenames__[ : self.__splitposition__])   
         self.default_args = self.__get_default_args__(self.__uniquenames__[self.__splitposition__ : ])    
+
+    def FlagExist(self, flag):
+        if flag not in self.__flagnames__:
+            raise Exception("{} is not a flag".format(flag))
+
+        name = self.__get_unique_names__([flag])
+        if name[0] in self.flags:
+            return True
+        return False
+
+    def ParamExist(self, param):
+        if param not in self.__parameternames__:
+            raise Exception("{} is not a parameter".format(param))
+
+        name = self.__get_unique_names__([param])
+        if name[0] in self.parameters.keys():
+            return True
+        return False
+
+    def GetParamValue(self, param):
+        if param not in self.__parameternames__:
+            raise Exception("{} is not a parameter".format(param))
+
+        name = self.__get_unique_names__([param])
+        if name[0] in self.parameters.keys():
+            return self.parameters[name[0]]
+        return None
 
     def __get_parameters__(self, parameternames : list):
         parameters = {}
@@ -139,3 +167,5 @@ if __name__ == "__main__":
     print(args.default_args)
     print(args.CheckFlagSet([["help", "h"], ["pthread", None]]))
     print(args.CheckParameterSet([[None, "k"], ["iv", "i"]]))
+    print(args.FlagExist(["help", "h"]))
+    print(args.ParamExist(["iv", "is"]))
