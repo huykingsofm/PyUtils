@@ -1,9 +1,9 @@
-version = "1.0"
+version = "1.1"
 
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QMessageBox, QInputDialog
 from PyQt5.QtWidgets import QLineEdit, QComboBox, QTabWidget, QPlainTextEdit, QFileDialog
 from PyQt5.QtCore import Qt, QCoreApplication, QUrl, QSize, QObject, pyqtSignal
-from PyQt5.QtGui import QFont, QIcon, QImage
+from PyQt5.QtGui import QFont, QIcon, QImage, QPalette
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import wx
