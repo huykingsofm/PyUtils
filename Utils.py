@@ -1,9 +1,16 @@
-version = "1.0"
+version = "1.1"
 from random import randint
 from math import sqrt
 import os
+import wx
 
-cwd = os.getcwd()
+def GetScreenSize():
+    a = wx.App(False)
+    return wx.GetDisplaySize()
+
+def GetCurrentWorkingDir():
+    return os.getcwd()
+
 def permutation(N):
     perm = [x for x in range(N)]
    

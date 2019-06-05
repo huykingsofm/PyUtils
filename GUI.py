@@ -1,12 +1,11 @@
-version = "1.1"
+version = "1.2"
 
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QMessageBox, QInputDialog
 from PyQt5.QtWidgets import QLineEdit, QComboBox, QTabWidget, QPlainTextEdit, QFileDialog
 from PyQt5.QtCore import Qt, QCoreApplication, QUrl, QSize, QObject, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon, QImage, QPalette
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-import wx
+from Utils import GetScreenSize
 
 class Communicate(QObject):
     signal = pyqtSignal(str)
@@ -15,10 +14,6 @@ class Communicate(QObject):
 
     def emit(self, message):
         self.signal.emit(message)
-
-def GetScreenSize():
-    a = wx.App(False)
-    return wx.GetDisplaySize()
 
 W_SCREEN, H_SCREEN = GetScreenSize()
 
@@ -240,20 +235,4 @@ class Table(QTableWidget):
     
     def setItem_(self, x, y, item):
         super().setItem(x, y, QTableWidgetItem(item))
-
-class WebView(QWebEngineView):
-    def __init__(self, width, height, dx, dy, parent):
-        self.width = width
-        self.height = height
-        super().__init__(parent)
-        self.resize(width, height)
-        self.move(dx, dy)
-
-    def resize(self, width, height):
-        super().resize(width, height)
-        self.width = width
-        self.height = height
-    
-    def getSize(self):
-        return self.width, self.height
 
