@@ -34,14 +34,15 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
                 checkpoint_att = (checkpoint_att[0], "./")
             elif isinstance(checkpoint_att[0], str):
                 checkpoint_att = (1, checkpoint_att[0])                
-                try:  
-                    os.mkdir(checkpoint_att[1])
-                except OSError:  
-                    print ("Creation of the directory %s failed" % checkpoint_att[1])
-                else:  
-                    print ("Successfully created the directory %s " % checkpoint_att[1])
             else:
                 raise Exception("checkpoint_att is in incorrect format")
+
+        try:  
+            os.mkdir(checkpoint_att[1])
+        except OSError:  
+            print ("Creation of the directory %s failed" % checkpoint_att[1])
+        else:  
+            print ("Successfully created the directory %s " % checkpoint_att[1])
 
     if print_att == None:
         print_att = ("none", 0)
