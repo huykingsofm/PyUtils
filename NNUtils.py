@@ -96,8 +96,9 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
                     istart, X.shape[0],
                     loss.item(),
                 ))
+        if print_att[0] is not "batch":
+            print("")
 
-        print("")
         model.eval()
         output = model(X)
         loss = criterion(output, Y.view(output.shape))
