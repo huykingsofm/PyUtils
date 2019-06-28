@@ -46,7 +46,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
     if print_att == None:
         print_att = ("none", 0)
     elif len(print_att) == 1:
-        if isinstance(print_att, str):
+        if isinstance(print_att[0], str):
             raise Exception("print_att is need a print_every more than where it print")
         else:
             print_att = ("epoch", print_att[0])
