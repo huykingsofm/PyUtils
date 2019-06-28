@@ -51,6 +51,20 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
         else:
             print_att = ("epoch", print_att[0])
 
+    print("Set up completely")
+    print("training size= {}\ttesting size= {}".format(training_set[0].shape[0], testing_set[0].shape[0]))
+    print("batch size= {}".format(batch_size))
+    print("n_epoches= {}".format(n_epoches))
+    if checkpoint_att != None:
+        print("checkpoint save at {} after every {} epoch(s)".format(checkpoint_att[1], checkpoint_att[0]))
+    else:
+        print("checkpoint is not set")
+    if print_att[0] != "none":
+        print("print after every {} {}".format(print_att[1], print_att[0]))
+    else:
+        print("print is not set")
+    print("history loss is calculated after every {}".format(history_att))
+
     for iepoch in range(n_epoches):
         shuffer_idx = torch.randperm(X.shape[0])
         
