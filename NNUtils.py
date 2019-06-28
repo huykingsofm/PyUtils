@@ -75,24 +75,33 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
                 hist_loss.append(loss.item())
 
             if print_att[0] == "batch" and (istart + 1) % print_att[1]:
-                print("\rEpoch[{:4d}/{}]\tBatch[{:4d}/{}]\tLoss= {:8.6f}".format(
+                print("Epoch[{:4d}/{}]\tBatch[{:4d}/{}]\tLoss= {:8.6f}".format(
                     iepoch + 1, n_epoches,
                     istart, X.shape[0],
                     loss.item(),
                 ))
-        
+                
         model.eval()
-        loss = criterion(model(X), Y.view(X.shape))
+        output = model(X)
+        loss = criterion(output, Y.view(output.shape))
 
         if history_att == "epoch":
             hist_loss.append(loss.item())
         
-        if print_att[0] == "batch" and (iepoch + 1) % print_att[1]:
-            print("\rEpoch[{:4d}/{}]\tLoss= {:8.6f}\tElapsed time= {:.2f}s".format(
+        if (print_att[0] == "batch" and (iepoch + 1) % print_att[1]) or testing_set != None:
+            print("Epoch[{:4d}/{}]\tLoss= {:8.6f}\tElapsed time= {:.2f}s".format(
                 iepoch + 1, n_epoches,
                 loss.item(),
                 time.time() - start
-            ))
+            ), end= "")
+            
+            if testing_set != None:
+                output = model(testing_set[0])
+                loss = criterion(output, testing_set[1].view(output.shape))
+                print("\tValid Loss= {:8:6f}".format(
+                    loss.item()
+                ), end= "")
+            print("")
         
         if (iepoch + 1) % checkpoint_att[0]:
             t = datetime.datetime.now()
