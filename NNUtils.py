@@ -89,7 +89,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             if history_att == "batch":
                 hist_loss.append(loss.item())
 
-            if print_att[0] == "batch" and (istart + 1) % print_att[1]:
+            if print_att[0] == "batch" and (istart + 1) % print_att[1] == 0:
                 print("Epoch[{:4d}/{}]\tBatch[{:4d}/{}]\tLoss= {:8.6f}".format(
                     iepoch + 1, n_epoches,
                     istart, X.shape[0],
@@ -104,7 +104,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
         if history_att == "epoch":
             hist_loss.append(loss.item())
         
-        if (print_att[0] == "batch" and (iepoch + 1) % print_att[1]) or testing_set != None:
+        if (print_att[0] == "batch" and (iepoch + 1) % print_att[1] == 0) or testing_set != None:
             print("Epoch[{:4d}/{}]\tLoss= {:.6f}\t".format(
                 iepoch + 1, n_epoches,
                 loss.item()
@@ -119,7 +119,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             
             print("Elapsed time= {:.2f}s".format(time.time() - start))
         
-        if (iepoch + 1) % checkpoint_att[0]:
+        if (iepoch + 1) % checkpoint_att[0] == 0:
             t = datetime.datetime.now()
             PATH = checkpoint_att[1] + "/{}-loss={:.4f}".format(t, loss.item())
             torch.save(model.state_dict(), PATH)
