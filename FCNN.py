@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-
 class FCNN(nn.Module):
     VALID_LAYERS = ["sigmoid", "tanh", "relu", "softmax", "batchnorm", "dropout"]
     def __init__(self, network: list):
@@ -54,9 +53,3 @@ class FCNN(nn.Module):
             graph.append(layer)
             
         return "->".join(graph)
-
-    
-if __name__ == "__main__":
-    network = [1, 2, 3, 4, "batchnorm", 5]
-    model = FCNN(network)
-    

@@ -2,7 +2,6 @@ version = "1.2"
 from random import randint
 from math import sqrt
 import os
-import wx
 
 def get_name_in_path(path:str):
     path = path.rstrip("/").rstrip("\\")
@@ -10,6 +9,7 @@ def get_name_in_path(path:str):
     return path.split("/")[-1]
 
 def GetScreenSize():
+    import wx
     _ = wx.App(False)
     return wx.GetDisplaySize()
 
