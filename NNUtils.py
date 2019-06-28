@@ -96,8 +96,6 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
                     istart + 1, X.shape[0],
                     loss.item(),
                 ))
-        if print_att[0] is not "batch":
-            print("")
 
         model.eval()
         output = model(X)
@@ -115,11 +113,11 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             if testing_set != None:
                 output = model(testing_set[0])
                 loss = criterion(output, testing_set[1].view(output.shape))
-                print("\tValid Loss= {:.6f}".format(
+                print("\t\tValid Loss= {:.6f}".format(
                     loss.item()
                 ), end= "")
             
-            print("\tElapsed time= {:.2f}s".format(time.time() - start))
+            print("\t\tElapsed time= {:.2f}s".format(time.time() - start))
         
         if (iepoch + 1) % checkpoint_att[0] == 0:
             t = datetime.datetime.now()
