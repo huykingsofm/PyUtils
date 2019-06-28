@@ -1,11 +1,16 @@
-version = "1.1"
+version = "1.2"
 from random import randint
 from math import sqrt
 import os
 import wx
 
+def get_name_in_path(path:str):
+    path = path.rstrip("/").rstrip("\\")
+    path = path.replace("\\", "/")
+    return path.split("/")[-1]
+
 def GetScreenSize():
-    a = wx.App(False)
+    _ = wx.App(False)
     return wx.GetDisplaySize()
 
 def GetCurrentWorkingDir():
@@ -49,5 +54,4 @@ def __flatten__(inp, out : list):
     return out
 
 if __name__ == "__main__":
-    ### for testing
-    print(squarize([1, 2, 3, 4]))
+    print(get_name_in_path(".\\huy.txt"))

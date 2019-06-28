@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QLineEdit, QComboBox, QTabWidget, QPlainTextEdit, QF
 from PyQt5.QtCore import Qt, QCoreApplication, QUrl, QSize, QObject, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon, QImage, QPalette
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView
-from Utils import GetScreenSize
+from .Utils import GetScreenSize
 
 class Communicate(QObject):
     signal = pyqtSignal(str)
