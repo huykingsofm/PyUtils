@@ -75,7 +75,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
         for istart in range(0, X.shape[0], batch_size):
             if print_att[0] is not "batch":
                 print("\rEpoch[{:4d}/{}]\tPercentage= {:2.2f}%"
-                    .format(iepoch + 1, n_epoches, istart * 100 / X.shape[0]), end ="")
+                    .format(iepoch + 1, n_epoches, (istart + 1) * 100 / X.shape[0]), end ="")
 
             batch_X = X[shuffer_idx[istart: istart + batch_size]]
             batch_Y = Y[shuffer_idx[istart: istart + batch_size]]
@@ -105,7 +105,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             hist_loss.append(loss.item())
         
         if (print_att[0] == "batch" and (iepoch + 1) % print_att[1] == 0) or testing_set != None:
-            print("Epoch[{:4d}/{}]\tLoss= {:.6f}".format(
+            print("\rEpoch[{:4d}/{}]\tLoss= {:.6f}".format(
                 iepoch + 1, n_epoches,
                 loss.item()
             ), end= "")
