@@ -98,7 +98,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             if testing_set != None:
                 output = model(testing_set[0])
                 loss = criterion(output, testing_set[1].view(output.shape))
-                print("\tValid Loss= {:8:6f}".format(
+                print("\tValid Loss= {:8.6f}".format(
                     loss.item()
                 ), end= "")
             print("")
