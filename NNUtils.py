@@ -64,15 +64,16 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
         print("print after every {} {}".format(print_att[1], print_att[0]))
     else:
         print("print is not set")
-    print("history loss is calculated after every {}".format(history_att))
-
+    print("history loss is calculated after every {}\n".format(history_att))
+    time.sleep(1)
+ 
     for iepoch in range(n_epoches):
         shuffer_idx = torch.randperm(X.shape[0])
         
         model.train(True)
         start = time.time()
         for istart in range(0, X.shape[0], batch_size):
-            if print_att is not "batch":
+            if print_att[0] is not "batch":
                 print("\rEpoch[{:4d}/{}]\tPercentage= {:2.2f}%"
                     .format(iepoch + 1, n_epoches, istart * 100 / X.shape[0]), end ="")
 
