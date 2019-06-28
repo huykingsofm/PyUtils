@@ -93,7 +93,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             if print_att[0] == "batch" and (istart + 1) % print_att[1] == 0:
                 print("Epoch[{:4d}/{}]\tBatch[{:4d}/{}]\tLoss= {:8.6f}".format(
                     iepoch + 1, n_epoches,
-                    istart, X.shape[0],
+                    istart + 1, X.shape[0],
                     loss.item(),
                 ))
         if print_att[0] is not "batch":
