@@ -80,7 +80,8 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
                     istart, X.shape[0],
                     loss.item(),
                 ))
-                
+
+        print("")
         model.eval()
         output = model(X)
         loss = criterion(output, Y.view(output.shape))
@@ -89,19 +90,19 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             hist_loss.append(loss.item())
         
         if (print_att[0] == "batch" and (iepoch + 1) % print_att[1]) or testing_set != None:
-            print("Epoch[{:4d}/{}]\tLoss= {:8.6f}\tElapsed time= {:.2f}s".format(
+            print("Epoch[{:4d}/{}]\tLoss= {:.6f}\t".format(
                 iepoch + 1, n_epoches,
-                loss.item(),
-                time.time() - start
+                loss.item()
             ), end= "")
             
             if testing_set != None:
                 output = model(testing_set[0])
                 loss = criterion(output, testing_set[1].view(output.shape))
-                print("\tValid Loss= {:8.6f}".format(
+                print("Valid Loss= {:.6f}\t".format(
                     loss.item()
                 ), end= "")
-            print("")
+            
+            print("Elapsed time= {:.2f}s".format(time.time() - start))
         
         if (iepoch + 1) % checkpoint_att[0]:
             t = datetime.datetime.now()
