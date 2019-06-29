@@ -24,6 +24,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
     
     all_start = time.time()
     hist_loss = []
+    hist_valid_loss = []
 
     X = training_set[0]
     Y = training_set[1]
@@ -53,11 +54,11 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             print_att = ("epoch", print_att[0])
 
     print("Set up completely")
-    print("training size= {}\ttesting size= {}".format(training_set[0].shape[0], testing_set[0].shape[0]))
-    print("batch size= {}".format(batch_size))
-    print("n_epoches= {}".format(n_epoches))
+    print("Training size is {}\ttesting size is {}".format(training_set[0].shape[0], testing_set[0].shape[0]))
+    print("Batch size is {}".format(batch_size))
+    print("The number of epoches is {}".format(n_epoches))
     if checkpoint_att != None:
-        print("checkpoint save at {} after every {} epoch(s)".format(checkpoint_att[1], checkpoint_att[0]))
+        print("Checkpoint will be saved at {} after every {} epoch(s)".format(checkpoint_att[1], checkpoint_att[0]))
     else:
         print("checkpoint is not set")
     if print_att[0] != "none":
@@ -65,6 +66,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
     else:
         print("print is not set")
     print("history loss is calculated after every {}\n".format(history_att))
+    print("\nThe process is about to run....")
     time.sleep(1)
  
     for iepoch in range(n_epoches):
@@ -116,6 +118,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
                 print("\t\tValid Loss= {:.6f}".format(
                     loss.item()
                 ), end= "")
+                hist_valid_loss.append(loss.item())
             
             print("\t\tElapsed time= {:.2f}s".format(time.time() - start))
         
@@ -123,7 +126,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             t = datetime.datetime.now()
             PATH = checkpoint_att[1] + "/{}-loss={:.4f}".format(t, loss.item())
             torch.save(model.state_dict(), PATH)
-            print("Module was saved in {}".format(PATH))
+            print("Model was saved in {}".format(PATH))
     all_end = time.time()
     print("Elapsed time= {:.2f}s\tAvarage elapsed time per epoch= {:2f}s"
         .format(all_end - all_start, (time.time() - all_start) / n_epoches))
