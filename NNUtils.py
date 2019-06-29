@@ -114,11 +114,11 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             
             if testing_set != None:
                 output = model(testing_set[0])
-                loss = criterion(output, testing_set[1].view(output.shape))
+                valid_loss = criterion(output, testing_set[1].view(output.shape))
                 print("\t\tValid Loss= {:.6f}".format(
-                    loss.item()
+                    valid_loss.item()
                 ), end= "")
-                hist_valid_loss.append(loss.item())
+                hist_valid_loss.append(valid_loss.item())
             
             print("\t\tElapsed time= {:.2f}s".format(time.time() - start))
         
@@ -127,6 +127,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
             PATH = checkpoint_att[1] + "/{}-loss={:.4f}".format(t, loss.item())
             torch.save(model.state_dict(), PATH)
             print("Model was saved in {}".format(PATH))
+
     all_end = time.time()
     print("Elapsed time= {:.2f}s\tAvarage elapsed time per epoch= {:2f}s"
         .format(all_end - all_start, (time.time() - all_start) / n_epoches))
