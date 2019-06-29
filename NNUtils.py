@@ -130,4 +130,4 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
     all_end = time.time()
     print("Elapsed time= {:.2f}s\tAvarage elapsed time per epoch= {:2f}s"
         .format(all_end - all_start, (time.time() - all_start) / n_epoches))
-    return model, hist_loss
+    return model, hist_loss, hist_valid_loss
