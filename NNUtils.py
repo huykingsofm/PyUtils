@@ -183,7 +183,7 @@ class BalanceDataLoader():
         print("Done")
 
     def get_batch_idx(self, size):
-        if self.cursor > self.size:
+        if self.cursor >= self.size:
             self.__reset__()
 
         if size > self.size:
