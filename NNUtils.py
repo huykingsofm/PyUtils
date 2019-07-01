@@ -4,6 +4,8 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import random
+from .Utils import array_multiply
 
 def start_training(model: nn.Module, optimizer: optim, criterion, training_set:tuple, testing_set:tuple= None,
      batch_size= 64, n_epoches= 10, checkpoint_att:tuple= None, print_att:tuple= None, history_att:tuple= "epoch"):
@@ -132,3 +134,63 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
     print("Elapsed time= {:.2f}s\tAvarage elapsed time per epoch= {:2f}s"
         .format(all_end - all_start, (time.time() - all_start) / n_epoches))
     return model, hist_loss, hist_valid_loss
+
+class BalanceDataLoader():
+    def __init__(self, labels, d):
+        # thống kê
+        min_value = int(labels.min())
+        max_value = int(labels.max())
+
+        values = list(range(min_value - 1, max_value + 1, d))
+        self.N = len(values) - 1
+        self.size = len(labels)
+
+        frequency_of_value = []
+        for i, value in enumerate(values[1:]):
+            frq = (labels <= value).sum().item() - (labels <= values[i]).sum().item() 
+            frequency_of_value.append(frq)
+
+        sumary_of_frq = sum(frequency_of_value, 0)
+        # tính toán tỉ lệ
+        ratio_of_value = [float(fre) / sumary_of_frq for fre in frequency_of_value]
+        max_ratio = max(ratio_of_value)
+
+        # chia nhỏ labels thành nhiều sub-labels nhỏ, mỗi sub-labels đại diện cho một đoạn giá trị
+        self.sub_labels = []
+        backup = labels.clone()
+        for i, value in enumerate(values[1:]):
+            position = list(torch.nonzero(backup <= value).view(-1).numpy())
+            position = array_multiply(position, max_ratio / ratio_of_value[i])
+            position = torch.LongTensor(position)
+            self.sub_labels.append(position)
+            backup[position] += 1e10
+        
+        self.min_len = min([x.shape[0] for x in self.sub_labels])
+        self.__reset__()
+
+    def __reset__(self):
+        self.shuffle_idx = torch.randperm(self.min_len)
+        self.cursor = 0
+
+    def get_batch_idx(self, size):
+        if self.cursor > self.size:
+            self.__reset__()
+
+        if size > self.size:
+            size = self.size
+
+        avg = size // self.N
+        last = size % self.N if size % self.N != 0 else avg
+
+        who_last = random.randint(0, self.N - 1)
+        position = []
+        for i in range(self.N):
+            if i == who_last:
+                t = self.sub_labels[i][self.shuffle_idx[self.cursor : self.cursor + last]]
+            else:
+                t = self.sub_labels[i][self.shuffle_idx[self.cursor : self.cursor + avg]]
+            t = t.view(-1).numpy()
+            position.extend(t)
+        self.cursor += avg
+        random.shuffle(position)
+        return torch.LongTensor(position)
