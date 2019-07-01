@@ -136,7 +136,8 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
     return model, hist_loss, hist_valid_loss
 
 class BalanceDataLoader():
-    def __init__(self, labels, d):
+    def __init__(self, labels, d, device):
+        self.device = device
         # thống kê
         min_value = int(labels.min())
         max_value = int(labels.max())
@@ -159,9 +160,9 @@ class BalanceDataLoader():
         self.sub_labels = []
         backup = labels.clone()
         for i, value in enumerate(values[1:]):
-            position = list(torch.nonzero(backup <= value).view(-1).numpy())
+            position = list(torch.nonzero(backup <= value).view(-1).cpu().numpy())
             position = array_multiply(position, max_ratio / ratio_of_value[i])
-            position = torch.LongTensor(position)
+            position = torch.LongTensor(position).to(self.device)
             self.sub_labels.append(position)
             backup[position] += 1e10
         
@@ -169,7 +170,7 @@ class BalanceDataLoader():
         self.__reset__()
 
     def __reset__(self):
-        self.shuffle_idx = torch.randperm(self.min_len)
+        self.shuffle_idx = torch.randperm(self.min_len).to(self.device)
         self.cursor = 0
 
     def get_batch_idx(self, size):
@@ -189,8 +190,7 @@ class BalanceDataLoader():
                 t = self.sub_labels[i][self.shuffle_idx[self.cursor : self.cursor + last]]
             else:
                 t = self.sub_labels[i][self.shuffle_idx[self.cursor : self.cursor + avg]]
-            t = t.view(-1).numpy()
+            t = t.view(-1).cpu().numpy()
             position.extend(t)
         self.cursor += avg
-        random.shuffle(position)
-        return torch.LongTensor(position)
+        return torch.LongTensor(position).to(device)
