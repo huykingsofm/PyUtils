@@ -1,7 +1,29 @@
 version = "1.2"
 from random import randint
+import random
 from math import sqrt
 import os
+import timeit
+
+def array_multiply(arr: list, multiplier: float, shuffle= True, shuffle_last= True):
+    integer = int(multiplier)
+    resident = multiplier - integer
+    
+    last = arr.copy()
+    if shuffle_last:
+        random.shuffle(last)
+    
+    new_arr = []
+    for i in range(integer):
+        t = arr.copy()
+        if shuffle:
+            random.seed(int(timeit.timeit() * 1e10))
+            random.shuffle(t)
+        new_arr.extend(t)
+    
+    last_len = int(resident * len(arr))
+    new_arr.extend(last[:last_len])
+    return new_arr
 
 def get_name_in_path(path:str):
     path = path.rstrip("/").rstrip("\\")
@@ -17,14 +39,8 @@ def GetCurrentWorkingDir():
     return os.getcwd()
 
 def permutation(N):
-    perm = [x for x in range(N)]
-   
-    for idx in range(N - 1):
-        i = randint(idx + 1, N - 1)
-        t = perm[i]
-        perm[i] = perm[idx]
-        perm[idx] = t
-        
+    perm = [range(N)]
+    random.shuffle(perm)
     return perm
 
 def squarize(inp):
@@ -54,4 +70,4 @@ def __flatten__(inp, out : list):
     return out
 
 if __name__ == "__main__":
-    print(get_name_in_path(".\\huy.txt"))
+    print(array_multiply([1, 2, 3], 10.4, shuffle= False, shuffle_last= True))
