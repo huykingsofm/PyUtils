@@ -150,7 +150,7 @@ class BalanceDataLoader():
         frequency_of_value = []
         for i, value in enumerate(values[1:]):
             frq = (labels <= value).sum().item() - (labels <= values[i]).sum().item() 
-            frequency_of_value.append(frq)
+            frequency_of_value.append(frq + 1e-10)
 
         sumary_of_frq = sum(frequency_of_value, 0)
         # tính toán tỉ lệ
@@ -173,7 +173,7 @@ class BalanceDataLoader():
             backup[position] += 1e10
             print("\rDivide to many subset....{}/{}              ".format(i + 1, self.N), end= "")
         print("\rDivide to many subset....Done")
-        self.min_len = min([x.shape[0] for x in self.sub_labels])
+        self.min_len = min([x.shape[0] if x.shape[0] > 0 else 1e10 for x in self.sub_labels])
         self.__reset__()
 
     def __reset__(self):
@@ -195,6 +195,8 @@ class BalanceDataLoader():
         who_last = random.randint(0, self.N - 1)
         position = []
         for i in range(self.N):
+            if self.sub_labels[i].shape[0] == 0:
+                continue
             if i == who_last:
                 t = self.sub_labels[i][self.shuffle_idx[self.cursor : self.cursor + last]]
             else:
@@ -203,3 +205,7 @@ class BalanceDataLoader():
             position.extend(t)
         self.cursor += avg
         return torch.LongTensor(position).to(self.device)
+if __name__ == "__main__":
+    a = torch.Tensor([1, 2, 3, 2, 1, 3, 2, 3, 5, 5])
+    dg = BalanceDataLoader(a, 1, torch.device("cpu"))
+    print(dg.get_batch_idx(6))

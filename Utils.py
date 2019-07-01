@@ -6,6 +6,9 @@ import os
 import timeit
 
 def array_multiply(arr: list, multiplier: float, shuffle= True, shuffle_last= True):
+    if len(arr) == 0:
+        return arr
+        
     integer = int(multiplier)
     resident = multiplier - integer
     
