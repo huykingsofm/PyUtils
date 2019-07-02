@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import random
-from Utils import array_multiply
+from .Utils import array_multiply
 import timeit
 
 def start_training(model: nn.Module, optimizer: optim, criterion, loader, training_set:tuple, testing_set:tuple= None,
