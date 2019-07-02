@@ -82,9 +82,10 @@ def start_training(model: nn.Module, optimizer: optim, criterion, loader, traini
             if print_att[0] is not "batch":
                 print("\rEpoch[{:4d}/{}]\tPercentage= {:2.2f}%"
                     .format(iepoch + 1, n_epoches, (istart + 1) * 100 / X.shape[0]), end ="")
+            ids = loader.get_batch_idx(batch_size)
 
-            batch_X = X[loader.get_batch_idx(batch_size)]
-            batch_Y = Y[loader.get_batch_idx(batch_size)]
+            batch_X = X[ids]
+            batch_Y = Y[ids]
 
             batch_O = model(batch_X)
 
@@ -152,7 +153,7 @@ class Loader():
         self.cursor += size
         return ret
 
-class BalanceDataLoader():
+class BalanceDataLoader(Loader):
     def __init__(self, labels, d, device):
         self.device = device
         # thống kê
