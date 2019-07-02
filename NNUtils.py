@@ -56,8 +56,9 @@ def start_training(model: nn.Module, optimizer: optim, criterion, loader, traini
         else:
             print_att = ("epoch", print_att[0])
 
-    print("Set up completely")
-    print("Training size is {}\ttesting size is {}".format(training_set[0].shape[0], testing_set[0].shape[0]))
+    print("Training size is {}".format(training_set[0].shape[0]))
+    if testing_set != None:
+        print("Testing size is {}".format(testing_set[0].shape[0]))
     print("Batch size is {}".format(batch_size))
     print("The number of epoches is {}".format(n_epoches))
     if checkpoint_att != None:
@@ -162,16 +163,6 @@ class BalanceDataLoader(Loader):
 
         values = list(range(min_value - 1, max_value + 1, d))
         self.size = len(labels)
-
-        frequency_of_value = []
-        for i, value in enumerate(values[1:]):
-            frq = (labels <= value).sum().item() - (labels <= values[i]).sum().item() 
-            frequency_of_value.append(frq + 1e-10)
-
-        sumary_of_frq = sum(frequency_of_value, 0)
-        # tính toán tỉ lệ
-        ratio_of_value = [float(fre) / sumary_of_frq for fre in frequency_of_value]
-        max_ratio = max(ratio_of_value)
         
         # chia nhỏ labels thành nhiều sub-labels nhỏ, mỗi sub-labels đại diện cho một đoạn giá trị
         self.sub_labels = []
