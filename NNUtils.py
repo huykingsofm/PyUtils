@@ -112,7 +112,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, loader, traini
         if history_att == "epoch":
             hist_loss.append(loss.item())
         
-        if (print_att[0] == "batch" and (iepoch + 1) % print_att[1] == 0):
+        if (print_att[0] == "epoch" and (iepoch + 1) % print_att[1] == 0):
             print("\rEpoch[{:4d}/{}]\tLoss= {:.6f}".format(
                 iepoch + 1, n_epoches,
                 loss.item()
