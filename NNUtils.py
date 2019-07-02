@@ -8,6 +8,9 @@ import random
 from .Utils import array_multiply
 import timeit
 
+def reset(a):
+    a.__reset__()
+
 def start_training(model: nn.Module, optimizer: optim, criterion, loader, training_set:tuple, testing_set:tuple= None,
      batch_size= 64, n_epoches= 10, checkpoint_att:tuple= None, print_att:tuple= None, history_att:tuple= "epoch"):
     """
@@ -77,6 +80,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, loader, traini
         if loader == None:
             loader = Loader(training_set[0].shape[0])
 
+        reset(loader)
         model.train(True)
         start = time.time()
         for istart in range(0, X.shape[0], batch_size):
@@ -221,7 +225,14 @@ class BalanceDataLoader(Loader):
             position.extend(t)
         return torch.LongTensor(position).to(self.device)
 if __name__ == "__main__":
-    i =              [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    a = torch.Tensor([1, 2, 3, 2, 1, 3, 2, 3, 5, 5])
-    dg = BalanceDataLoader(a, 1, torch.device("cpu"))
-    print(dg.get_batch_idx(11))
+    from FCNN import FCNN
+    f = lambda x, y: 2 * x + 5 * y
+    X = torch.Tensor([[1, 2], [2, 3], [3, 2], [2, 1], [3, 4], [1, 5], [1, 3], [2, 5]])
+    Y = torch.Tensor([f(x[0], x[1]) for x in X])
+    network = FCNN([2, 128, "relu", 64, "relu", 1])
+    optimizer = optim.Adam(network.parameters(), lr= 1e-4)
+    criterion = nn.MSELoss(reduction= "mean")
+    loader = BalanceDataLoader(Y, 1, torch.device("cpu"))
+    start_training(network, optimizer, criterion, loader, (X, Y), None, 4, 200, (10000, "./"), ("epoch", 1), "epoch")
+    test = torch.Tensor([[5, 7], [2, 3]])
+    print(network(test))
