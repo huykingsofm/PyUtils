@@ -183,10 +183,10 @@ class BalanceDataLoader(Loader):
 
     def __reset__(self):
         self.cursor = [0] * len(self.sub_labels)
-        for subset in self.sub_labels:
+        for i, subset in enumerate(self.sub_labels):
             current_time = int(timeit.timeit() * 1e10)
             random.seed(current_time)
-            random.shuffle(subset)
+            random.shuffle(self.sub_labels[i])
             
 
     def __get_position_of_subset__(self, isubset, l):
