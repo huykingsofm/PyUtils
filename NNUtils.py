@@ -82,7 +82,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, loader, traini
         for istart in range(0, X.shape[0], batch_size):
             if print_att[0] is not "batch":
                 print("\rEpoch[{:4d}/{}]\tPercentage= {:2.2f}%"
-                    .format(iepoch + 1, n_epoches, (istart + 1) * 100 / X.shape[0]), end ="")
+                    .format(iepoch + 1, n_epoches, (istart + batch_size) * 100 / X.shape[0]), end ="")
             ids = loader.get_batch_idx(batch_size)
 
             batch_X = X[ids]
@@ -112,7 +112,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, loader, traini
         if history_att == "epoch":
             hist_loss.append(loss.item())
         
-        if (print_att[0] == "batch" and (iepoch + 1) % print_att[1] == 0) or testing_set != None:
+        if (print_att[0] == "batch" and (iepoch + 1) % print_att[1] == 0):
             print("\rEpoch[{:4d}/{}]\tLoss= {:.6f}".format(
                 iepoch + 1, n_epoches,
                 loss.item()
@@ -135,6 +135,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, loader, traini
             print("Model was saved in {}".format(PATH))
 
     all_end = time.time()
+    print("")
     print("Elapsed time= {:.2f}s\tAvarage elapsed time per epoch= {:2f}s"
         .format(all_end - all_start, (time.time() - all_start) / n_epoches))
     return model, hist_loss, hist_valid_loss
