@@ -5,10 +5,10 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import random
-from .Utils import array_multiply
+from Utils import array_multiply
 import timeit
 
-def start_training(model: nn.Module, optimizer: optim, criterion, training_set:tuple, testing_set:tuple= None,
+def start_training(model: nn.Module, optimizer: optim, criterion, loader, training_set:tuple, testing_set:tuple= None,
      batch_size= 64, n_epoches= 10, checkpoint_att:tuple= None, print_att:tuple= None, history_att:tuple= "epoch"):
     """
     Start training a model with some attributes  
@@ -73,8 +73,9 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
     time.sleep(1)
  
     for iepoch in range(n_epoches):
-        shuffer_idx = torch.randperm(X.shape[0])
-        
+        if loader == None:
+            loader = Loader(training_set[0].shape[0])
+
         model.train(True)
         start = time.time()
         for istart in range(0, X.shape[0], batch_size):
@@ -82,8 +83,8 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
                 print("\rEpoch[{:4d}/{}]\tPercentage= {:2.2f}%"
                     .format(iepoch + 1, n_epoches, (istart + 1) * 100 / X.shape[0]), end ="")
 
-            batch_X = X[shuffer_idx[istart: istart + batch_size]]
-            batch_Y = Y[shuffer_idx[istart: istart + batch_size]]
+            batch_X = X[loader.get_batch_idx(batch_size)]
+            batch_Y = Y[loader.get_batch_idx(batch_size)]
 
             batch_O = model(batch_X)
 
@@ -135,6 +136,21 @@ def start_training(model: nn.Module, optimizer: optim, criterion, training_set:t
     print("Elapsed time= {:.2f}s\tAvarage elapsed time per epoch= {:2f}s"
         .format(all_end - all_start, (time.time() - all_start) / n_epoches))
     return model, hist_loss, hist_valid_loss
+
+class Loader():
+    def __init__(self, data_size):
+        self.data_size = data_size
+        self.__reset__()
+
+    def __reset__(self):
+        self.shuffle_idx = list(range(self.data_size))
+        random.shuffle(self.shuffle_idx)
+        self.cursor = 0
+
+    def get_batch_idx(self, size):
+        ret = torch.LongTensor(self.shuffle_idx[self.cursor: self.cursor + size])
+        self.cursor += size
+        return ret
 
 class BalanceDataLoader():
     def __init__(self, labels, d, device):
