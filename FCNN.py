@@ -7,7 +7,7 @@ class FCNN(nn.Module):
     def __init__(self, network: list):
         super(FCNN, self).__init__()
         for i in range(len(network)):
-            if isinstance(network[i], int) is False and isinstance(network[i], str) is True:
+            if isinstance(network[i], int) is True or isinstance(network[i], str) is True:
                 network[i] = (network[i], )
 
         self.network = network
@@ -15,13 +15,14 @@ class FCNN(nn.Module):
         last_layer_size = 0
 
         for i, layer in enumerate(network):
-            if isinstance(layer, int):
-                layer_size = layer
+            if isinstance(layer[0], int):
+                bias = True if len(layer) == 2 and layer[1] == True else False
+                layer_size = layer[0]
                 if last_layer_size is not 0:
-                    self.main.add_module(str(i), nn.Linear(last_layer_size, layer_size, bias= True))
+                    self.main.add_module(str(i), nn.Linear(last_layer_size, layer_size, bias= bias))
                 last_layer_size = layer_size
             
-            if isinstance(layer, tuple):
+            if isinstance(layer[0], str):
                 kind_of_layer = layer[0]
                 if kind_of_layer not in FCNN.VALID_LAYERS:
                     raise Exception("Kind of layer({}) is not invalid".format(kind_of_layer))
@@ -53,3 +54,7 @@ class FCNN(nn.Module):
             graph.append(layer)
             
         return "->".join(graph)
+
+if __name__ == "__main__":
+    network = FCNN([3, 123, "sigmoid", 1])
+    print(network(torch.Tensor([[1, 2, 3]])))

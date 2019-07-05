@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import random
-from .Utils import array_multiply
+from Utils import array_multiply
 import timeit
 
 def reset(a):
@@ -73,7 +73,7 @@ def start_training(model: nn.Module, optimizer: optim, criterion, loader, traini
     else:
         print("print is not set")
     print("history loss is calculated after every {}\n".format(history_att))
-    print("\nThe process is about to run....")
+    print("The process is about to run....")
     time.sleep(1)
  
     for iepoch in range(n_epoches):
@@ -225,14 +225,10 @@ class BalanceDataLoader(Loader):
             position.extend(t)
         return torch.LongTensor(position).to(self.device)
 if __name__ == "__main__":
-    from FCNN import FCNN
-    f = lambda x, y: 2 * x + 5 * y
-    X = torch.Tensor([[1, 2], [2, 3], [3, 2], [2, 1], [3, 4], [1, 5], [1, 3], [2, 5]])
-    Y = torch.Tensor([f(x[0], x[1]) for x in X])
-    network = FCNN([2, 128, "relu", 64, "relu", 1])
-    optimizer = optim.Adam(network.parameters(), lr= 1e-4)
-    criterion = nn.MSELoss(reduction= "mean")
-    loader = BalanceDataLoader(Y, 1, torch.device("cpu"))
-    start_training(network, optimizer, criterion, loader, (X, Y), None, 4, 200, (10000, "./"), ("epoch", 1), "epoch")
-    test = torch.Tensor([[5, 7], [2, 3]])
-    print(network(test))
+    class a():
+        def __call__(self, x):
+            print(x)
+            return x + 1
+
+    t = a()
+    print(t(10))
