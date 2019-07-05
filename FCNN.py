@@ -16,7 +16,7 @@ class FCNN(nn.Module):
 
         for i, layer in enumerate(network):
             if isinstance(layer[0], int):
-                bias = True if len(layer) == 2 and layer[1] == True else False
+                bias = True if len(layer) == 1 or layer[1] == True else False
                 layer_size = layer[0]
                 if last_layer_size is not 0:
                     self.main.add_module(str(i), nn.Linear(last_layer_size, layer_size, bias= bias))
@@ -57,4 +57,4 @@ class FCNN(nn.Module):
 
 if __name__ == "__main__":
     network = FCNN([3, 123, "sigmoid", 1])
-    print(network(torch.Tensor([[1, 2, 3]])))
+    print(network)
