@@ -37,6 +37,11 @@ class Module(nn.Module):
         self.checkpoint_dir = "./"
         self.history = "epoch"
 
+
+        self.main = nn.Sequential()
+    def forward(self, X):
+        return self.main(X)
+    
     def __metric__(self):
         return None
 
