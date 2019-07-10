@@ -76,7 +76,7 @@ class Module(nn.Module):
                 batch_Y = Y[shuffle_id]
                 batch_O = self(batch_X)
 
-                loss = self.criterion(batch_O, batch_Y.view(batch_O.shape))
+                loss = self.criterion(batch_O, batch_Y)
                 loss.backward()
 
                 self.optimizer.step()
@@ -85,8 +85,8 @@ class Module(nn.Module):
                     history_loss.append(loss.item())
             
             self.eval()
-            output = model(X)
-            loss = self.criterion(output, Y.view(output.shape))
+            O = model(X)
+            loss = self.criterion(O, Y)
             valid_loss = None
             if self.history == "epoch":
                 history_loss.append(loss.item())
@@ -99,7 +99,7 @@ class Module(nn.Module):
 
                 if self.validating_set[0] is not None:
                     output = self(self.validating_set[0])
-                    valid_loss = self.criterion(output, self.validating_set[1].view(output.shape))
+                    valid_loss = self.criterion(output, self.validating_set[1])
                     print("\t\tValid Loss= {:.6f}".format(
                         valid_loss.item()
                     ), end= "")
