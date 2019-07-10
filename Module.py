@@ -41,6 +41,9 @@ class Module(nn.Module):
         self.main = nn.Sequential()
     def forward(self, X):
         return self.main(X)
+
+    def add_module(self, module):
+        self.main.add_module(module)
     
     def __metric__(self):
         return None
