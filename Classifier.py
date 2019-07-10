@@ -1,9 +1,6 @@
 from .Module import Module
 import torch
 class Classifier(Module):
-    def __init__(self, n_classes):
-        self.n_classes = n_classes
-
     def __metric__(self):
         if self.validating_set == None:
             return None
