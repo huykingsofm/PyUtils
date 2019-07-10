@@ -85,7 +85,7 @@ class Module(nn.Module):
                     history_loss.append(loss.item())
             
             self.eval()
-            O = model(X)
+            O = self(X)
             loss = self.criterion(O, Y)
             valid_loss = None
             if self.history == "epoch":
