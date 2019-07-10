@@ -42,8 +42,8 @@ class Module(nn.Module):
     def forward(self, X):
         return self.main(X)
 
-    def add_module(self, module):
-        self.main.add_module(module)
+    def add_module(self, name, module):
+        self.main.add_module(name, module)
     
     def __metric__(self):
         return None
