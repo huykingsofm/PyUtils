@@ -15,8 +15,7 @@ class Module(nn.Module):
 
             batch_size      : int, obligatory
             n_epoches       : int, oblidgatory
-            metric          : str in ("accuracy"), optional
-            print           : bool, optional
+            print           : int, optional
             checkpoint      : int, optional
             checkpoint_dir  : str, optional
             history         : str in ("batch", "epoch"), optional
@@ -24,15 +23,15 @@ class Module(nn.Module):
         
     def __init__(self):
         super(Module, self).__init__()
-        self.attribute = dict()
-        self.in_process = dict()
-
+        
         self.validating_set = (None, None)
+        self.criterion = None
+        self.optimizer = None
         self.batchloader = None
 
         self.batch_size = 64
         self.n_epoches = 10
-        self.print = True
+        self.print = 0
         self.checkpoint = 1e10
         self.checkpoint_dir = "./"
         self.history = "epoch"
@@ -68,6 +67,7 @@ class Module(nn.Module):
             self.train()
             epoch_start = time.time()
             for ibatch in range(0, X.shape[0], self.batch_size):
+                self.zero_grad()
                 print("\rEpoch[{:4d}/{}]\tPercentage= {:2.2f}%"
                     .format(iepoch + 1, self.n_epoches, (ibatch + self.batch_size) * 100 / X.shape[0]), end ="")
 
@@ -91,7 +91,7 @@ class Module(nn.Module):
             if self.history == "epoch":
                 history_loss.append(loss.item())
 
-            if self.print == True:
+            if self.print != 0 and (iepoch + 1) % self.print == 0:
                 print("\rEpoch[{:4d}/{}]\tLoss= {:.6f}".format(
                     iepoch + 1, self.n_epoches,
                     loss.item()
