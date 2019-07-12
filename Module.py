@@ -111,7 +111,8 @@ class Module(nn.Module):
                 print("\t\tElapsed time= {:.2f}s".format(time.time() - epoch_start))
             if (iepoch + 1) % self.checkpoint == 0:
                 self.__save__(loss, valid_loss)
-
+            
+            del loss
         print("\nElapsed time= {:.2f}s".format(time.time() - process_start))
         return history_loss, history_valid_loss
         

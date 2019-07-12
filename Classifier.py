@@ -11,6 +11,11 @@ class Classifier(Module):
         n_true = (output.type(self.validating_set[1].type()) == self.validating_set[1]).sum().item()
         return "Accuracy={:.2f}%".format(100 * n_true / self.validating_set[0].shape[0])
 
+    def predict(self, X):
+        output = self(X)
+        output = torch.argmax(output, dim= 1)
+        return output
+
 if __name__ == "__main__":
     import torch.nn as nn
     import torch.optim as optim
