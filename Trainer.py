@@ -11,10 +11,11 @@ from .Dataset import Dataset, ToTensor
 import warnings
 warnings.filterwarnings("ignore")
 
-def __get_reasonable_size__(model, size, max_mem, unit= "MB"):
+def __get_reasonable_size__(model, size, max_mem, device, unit= "MB"):
     assert unit == "bit" or unit == "MB"
     l = 1
     r = int(1e6)
+    model = model.cpu()
     size = torch.LongTensor([size]).cpu().numpy().reshape(-1)
     unit = 0 if unit == "MB" else 1
     while l < r:
@@ -27,6 +28,7 @@ def __get_reasonable_size__(model, size, max_mem, unit= "MB"):
             r = m - 1
         if mem <= max_mem:
             l = m + 1
+    model.to(device)
     assert r > 0, "Memory is shortage"
     return r
 
@@ -44,7 +46,7 @@ class Trainer():
 
             maximum_memory  : int, optional
         """
-    def __init__(self, model, keys= ["features", "label"]):
+    def __init__(self, model, device, keys= ["features", "label"]):
         self.model = model
         
         self.validation = (None, None)
@@ -60,6 +62,7 @@ class Trainer():
         assert len(keys) == 2
         self.keys = keys
         self.maximum_memory = 1024 # 1GB
+        self.device = device
 
     def __metric__(self):
         return None
@@ -103,7 +106,8 @@ class Trainer():
         size_for_test = __get_reasonable_size__(
             model= self.model, 
             size= trainset[:][self.keys[0]].shape[1:], 
-            max_mem= self.maximum_memory
+            max_mem= self.maximum_memory,
+            device= self.device
         )
         size_for_test = len(trainset) if size_for_test > len(trainset) else size_for_test
 
@@ -176,7 +180,7 @@ if __name__ == "__main__":
     model.add_module("2", nn.ReLU(inplace= True))
     model.add_module("3", nn.Linear(100, 1, bias= True))
     
-    trainer = Trainer(model)
+    trainer = Trainer(model, "cpu")
     trainer.criterion = nn.MSELoss(reduction= "mean")
     trainer.optimizer = optim.Adam(model.parameters(), lr= 1e-3)
     trainer.n_epoches = 10
