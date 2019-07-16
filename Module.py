@@ -7,7 +7,7 @@ import time
 from torch.utils.data import DataLoader
 import random
 from .pytorch_modelsize.pytorch_modelsize import SizeEstimator
-from DataLoader import Dataset, ToTensor
+from .Dataset import Dataset, ToTensor
 import warnings
 warnings.filterwarnings("ignore")
 
