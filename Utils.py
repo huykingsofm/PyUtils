@@ -17,7 +17,7 @@ def array_multiply(arr: list, multiplier: float, shuffle= True, shuffle_last= Tr
         random.shuffle(last)
     
     new_arr = []
-    for i in range(integer):
+    for _ in range(integer):
         t = arr.copy()
         if shuffle:
             random.seed(int(timeit.timeit() * 1e10))

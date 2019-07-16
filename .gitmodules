@@ -1,0 +1,3 @@
+[submodule "pytorch_modelsize"]
+	path = pytorch_modelsize
+	url = https://github.com/jacobkimmel/pytorch_modelsize
