@@ -6,8 +6,8 @@ import datetime
 import time
 from torch.utils.data import DataLoader
 import random
-from .pytorch_modelsize.pytorch_modelsize import SizeEstimator
-from .Dataset import Dataset, ToTensor
+from pytorch_modelsize.pytorch_modelsize import SizeEstimator
+from Dataset import Dataset, ToTensor
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -84,7 +84,7 @@ class Trainer():
         ), end= "")
 
         if self.validation is not None:
-            output = self(self.validation[:][self.keys[0]])
+            output = self.model(self.validation[:][self.keys[0]])
             valid_loss = self.criterion(output, self.validation[:][self.keys[1]])
             print("\t\tValid Loss= {:.6f}".format(
                 valid_loss.item()
@@ -114,7 +114,7 @@ class Trainer():
             self.__get_size_for_test__(trainset)
         else:
             print("Use cache for train set")
-        print("Saved size for test is {}".format(self.size_for_test))
+        print("Safe size for test is {}".format(self.size_for_test))
 
         dataloader = DataLoader(trainset, batch_size= batch_size, shuffle= True)
         N = len(dataloader)
@@ -196,4 +196,5 @@ if __name__ == "__main__":
     trainer.maximum_memory = 0.01
 
 
+    trainer(dataset, 3)
     trainer(dataset, 3)
