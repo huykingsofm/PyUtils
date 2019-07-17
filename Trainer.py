@@ -6,8 +6,8 @@ import datetime
 import time
 from torch.utils.data import DataLoader
 import random
-from pytorch_modelsize.pytorch_modelsize import SizeEstimator
-from Dataset import Dataset, ToTensor
+from .pytorch_modelsize.pytorch_modelsize import SizeEstimator
+from .Dataset import Dataset, ToTensor
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -189,6 +189,7 @@ if __name__ == "__main__":
     model.add_module("3", nn.Linear(100, 1, bias= True))
     
     trainer = Trainer(model, "cpu")
+    trainer.validation = dataset
     trainer.criterion = nn.MSELoss(reduction= "mean")
     trainer.optimizer = optim.Adam(model.parameters(), lr= 1e-3)
     trainer.n_epoches = 10
