@@ -6,8 +6,8 @@ import datetime
 import time
 from torch.utils.data import DataLoader
 import random
-from .pytorch_modelsize.pytorch_modelsize import SizeEstimator
-from .Dataset import Dataset, ToTensor
+from pytorch_modelsize.pytorch_modelsize import SizeEstimator
+from Dataset import Dataset, ToTensor
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -19,6 +19,8 @@ def __get_reasonable_size__(model, size, max_mem, device, unit= "MB"):
     size = torch.LongTensor([size]).cpu().numpy().reshape(-1)
     unit = 0 if unit == "MB" else 1
     while l < r:
+        print("\r" + " " * 30, end= "")
+        print("\rSearch distance is {}".format(r - l), end= "")
         m = (l + r) // 2
         new_size = [m]
         new_size.extend(size)
@@ -29,6 +31,7 @@ def __get_reasonable_size__(model, size, max_mem, device, unit= "MB"):
         if mem <= max_mem:
             l = m + 1
     model.to(device)
+    print("\r" + " " * 30 +"\r", end= "")
     assert r > 0, "Memory is shortage"
     return r
 
@@ -49,7 +52,7 @@ class Trainer():
     def __init__(self, model, device, keys= ["features", "label"]):
         self.model = model
         
-        self.validation = (None, None)
+        self.validation = None
         self.criterion = None
         self.optimizer = None
 
@@ -63,13 +66,14 @@ class Trainer():
         self.keys = keys
         self.maximum_memory = 1024 # 1GB
         self.device = device
+        self.cachedset = None
 
     def __metric__(self):
         return None
 
     def __print_process__(self, iepoch, ibatch, N):
         print("\rEpoch[{:4d}/{}]\tPercentage= {:2.2f}%"
-            .format(iepoch + 1, self.n_epoches, (ibatch + 1) / N), end ="")
+            .format(iepoch + 1, self.n_epoches, 100 * (ibatch + 1) / N), end ="")
 
     def __print_all__(self, iepoch, ibatch, loss, epoch_start):
         valid_loss = None
@@ -79,7 +83,7 @@ class Trainer():
             loss.item()
         ), end= "")
 
-        if self.validation[0]:
+        if self.validation is not None:
             output = self(self.validation[:][self.keys[0]])
             valid_loss = self.criterion(output, self.validation[:][self.keys[1]])
             print("\t\tValid Loss= {:.6f}".format(
@@ -91,26 +95,30 @@ class Trainer():
         
         print("\t\tElapsed time= {:.2f}s".format(time.time() - epoch_start))
         return valid_loss
-
-    def evaluate_loss(self, X, Y):
-        self.model.eval()
-        O = self.model(X)
-        loss = self.criterion(O, Y)
-        return loss
-
-    def __call__(self, trainset, batch_size):
-        assert self.criterion and self.optimizer
-
-        N = len(trainset)
-        dataloader = DataLoader(trainset, batch_size= batch_size, shuffle= True)
-        size_for_test = __get_reasonable_size__(
+    def __get_size_for_test__(self, trainset):
+        self.size_for_test = __get_reasonable_size__(
             model= self.model, 
             size= trainset[:][self.keys[0]].shape[1:], 
             max_mem= self.maximum_memory,
             device= self.device
         )
-        size_for_test = len(trainset) if size_for_test > len(trainset) else size_for_test
+        if self.size_for_test > len(trainset):
+            self.size_for_test = len(trainset) 
 
+    def __call__(self, trainset, batch_size):
+        assert self.criterion and self.optimizer
+
+        print("Calculating train set....")
+        if self.cachedset != trainset:
+            self.cachedset = trainset
+            self.__get_size_for_test__(trainset)
+        else:
+            print("Use cache for train set")
+        print("Saved size for test is {}".format(self.size_for_test))
+
+        dataloader = DataLoader(trainset, batch_size= batch_size, shuffle= True)
+        N = len(dataloader)
+        
         history_loss = []
         history_valid_loss = []
         process_start = time.time()
@@ -134,8 +142,8 @@ class Trainer():
                     history_loss.append(loss.item())
                 
             self.model.eval()
-            start = random.randint(0, len(trainset) - size_for_test)
-            end = start + size_for_test
+            start = random.randint(0, len(trainset) - self.size_for_test)
+            end = start + self.size_for_test
             X = trainset[start : end][self.keys[0]]
             Y = trainset[start : end][self.keys[1]]
             O = self.model(X)
@@ -172,8 +180,8 @@ class Trainer():
     def save(self, PATH):
         torch.save(self.model.state_dict(), PATH)
 if __name__ == "__main__":
-    a = [[1, 2], [3, 2], [2, 2], [1, 4], [4, 1], [2, 3]]
-    b = [[1], [2], [3], [2], [3], [1]]
+    a = [[1, 2], [3, 2], [2, 2], [1, 4], [4, 1], [2, 3]] * 1000
+    b = [[1], [2], [3], [2], [3], [1]] * 1000
     dataset = Dataset(a, b, ToTensor())
     model = nn.Sequential()
     model.add_module("1", nn.Linear(2, 100, bias= False))
@@ -188,4 +196,4 @@ if __name__ == "__main__":
     trainer.maximum_memory = 0.01
 
 
-    trainer(dataset, 2)
+    trainer(dataset, 3)
