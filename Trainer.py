@@ -6,32 +6,28 @@ import datetime
 import time
 from torch.utils.data import DataLoader
 import random
-from .pytorch_modelsize.pytorch_modelsize import SizeEstimator
-from .Dataset import Dataset, ToTensor
+from pytorch_modelsize.pytorch_modelsize import SizeEstimator
+from Dataset import Dataset, ToTensor
 import warnings
 warnings.filterwarnings("ignore")
 
 def __get_reasonable_size__(model, size, max_mem, device, unit= "MB"):
     assert unit == "bit" or unit == "MB"
-    l = 1
-    r = int(1e6)
     model = model.cpu()
-    size = torch.LongTensor([size]).cpu().numpy().reshape(-1)
+    
+    size = torch.Tensor([size]).cpu().numpy().reshape(-1)
+    size = [int(x) for x in size]
     unit = 0 if unit == "MB" else 1
-    while l < r:
-        print("\r" + " " * 30, end= "")
-        print("\rSearch distance is {}".format(r - l), end= "")
-        m = (l + r) // 2
-        new_size = [m]
-        new_size.extend(size)
-        estimator = SizeEstimator(model, new_size)
-        mem = estimator.estimate_size()[unit]
-        if mem > max_mem:
-            r = m - 1
-        if mem <= max_mem:
-            l = m + 1
+    
+    unit_size = [1]
+    unit_size.extend(size)
+    
+    estimator = SizeEstimator(model, unit_size)
+    mem = estimator.estimate_size()[unit]
+    
+    r = int(max_mem // mem)
     model.to(device)
-    print("\r" + " " * 30 +"\r", end= "")
+
     assert r > 0, "Memory is shortage"
     return r
 
@@ -40,6 +36,7 @@ class Trainer():
             validation      : dataset, optional
             criterion       : object or function, obligatory
             optimizer       : nn.optim, obligatory
+            metric          : "accuracy" or None, obligatory
 
             n_epoches       : int, obligatory
             print           : int, optional
@@ -66,10 +63,22 @@ class Trainer():
         self.keys = keys
         self.maximum_memory = 1024 # 1GB
         self.device = device
-        self.cachedset = None
+        self.metric = None
 
     def __metric__(self):
-        return None
+        if self.metric in ["none", None]:
+            return None
+        
+        if self.metric == "accuracy":
+            if self.validation is None:
+                return None
+        
+            output = self.model(self.validation[:][self.keys[0]])
+            output = torch.argmax(output, dim= 1)
+
+            validation_type = self.validation[:][self.keys[1]].type()
+            n_true = (output.type(validation_type) == self.validation[:][self.keys[1]]).sum().item()
+            return "Accuracy={:.2f}%".format(100 * n_true / len(self.validation))
 
     def __print_process__(self, iepoch, ibatch, N):
         print("\rEpoch[{:4d}/{}]\tPercentage= {:2.2f}%"
@@ -108,12 +117,7 @@ class Trainer():
     def __call__(self, trainset, batch_size):
         assert self.criterion and self.optimizer
 
-        print("Calculating train set....")
-        if self.cachedset != trainset:
-            self.cachedset = trainset
-            self.__get_size_for_test__(trainset)
-        else:
-            print("Use cache for train set")
+        self.__get_size_for_test__(trainset)
         print("Safe size for test is {}".format(self.size_for_test))
 
         dataloader = DataLoader(trainset, batch_size= batch_size, shuffle= True)
@@ -199,3 +203,4 @@ if __name__ == "__main__":
 
     trainer(dataset, 3)
     trainer(dataset, 3)
+    
