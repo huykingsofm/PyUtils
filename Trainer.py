@@ -25,7 +25,7 @@ def __get_reasonable_size__(model, size, max_mem, device, unit= "MB"):
     estimator = SizeEstimator(model, unit_size)
     mem = estimator.estimate_size()[unit]
     
-    r = int(max_mem // mem)
+    r = int(max_mem / mem)
     model.to(device)
 
     assert r > 0, "Memory is shortage"
