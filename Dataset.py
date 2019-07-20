@@ -26,7 +26,7 @@ class Dataset(data.Dataset):
         raise Exception()
 
     def get_by_list(self, indices):
-        features = torch.Tensor(self("features"))[indices].tolist()
+        features = torch.Tensor(self("features"))[indices]
         label = torch.Tensor(self("label"))[indices]
         return Dataset(features, label, self.tranforms)
 
@@ -73,4 +73,4 @@ if __name__ == "__main__":
     print(dataset)
     loader = data.DataLoader(dataset, batch_size= 1)
     train, valid = dataset.split((0.6, 0.2), seed= 1)
-    print(train)
+    print(torch.Tensor(torch.Tensor([2, 3])))
