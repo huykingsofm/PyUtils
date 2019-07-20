@@ -7,7 +7,7 @@ import time
 from torch.utils.data import DataLoader
 import random
 from .pytorch_modelsize.pytorch_modelsize import SizeEstimator
-from .Dataset import Dataset, ToTensor
+from .Dataset import Dataset
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -186,7 +186,7 @@ class Trainer():
 if __name__ == "__main__":
     a = [[1, 2], [3, 2], [2, 2], [1, 4], [4, 1], [2, 3]] * 1000
     b = [[1], [2], [3], [2], [3], [1]] * 1000
-    dataset = Dataset(a, b, ToTensor())
+    dataset = Dataset(a, b)
     model = nn.Sequential()
     model.add_module("1", nn.Linear(2, 100, bias= False))
     model.add_module("2", nn.ReLU(inplace= True))
