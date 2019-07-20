@@ -20,7 +20,7 @@ def __get_reasonable_size__(model, size, max_mem, max_time, device, unit= "MB"):
     unit = 0 if unit == "MB" else 1
     
     l = 1
-    r = int(1e6)
+    r = int(1e4)
     while l < r:
         print("\r" + " " * 40 + "\r", end= "")
         print("\rSearch distance is [{}, {}]".format(l, r), end= "")
