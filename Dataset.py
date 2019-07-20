@@ -56,4 +56,4 @@ if __name__ == "__main__":
     dataset = Dataset(a, b)
     loader = data.DataLoader(dataset, batch_size= 1)
     x = dataset.split((0.6, 0.2, 0.2), seed= 2)
-    print(x)
+    print(len(x[0]))

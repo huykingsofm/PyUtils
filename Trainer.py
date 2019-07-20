@@ -11,7 +11,7 @@ from .Dataset import Dataset
 import warnings
 warnings.filterwarnings("ignore")
 
-def __get_reasonable_size__(model, size, max_mem, device, unit= "MB"):
+def __get_reasonable_size__(model, size, max_mem, max_time, device, unit= "MB"):
     assert unit == "bit" or unit == "MB"
     model = model.cpu()
     
@@ -19,15 +19,27 @@ def __get_reasonable_size__(model, size, max_mem, device, unit= "MB"):
     size = [int(x) for x in size]
     unit = 0 if unit == "MB" else 1
     
-    unit_size = [1]
-    unit_size.extend(size)
-    
-    estimator = SizeEstimator(model, unit_size)
-    mem = estimator.estimate_size()[unit]
-    
-    r = int(max_mem / mem)
-    model.to(device)
+    l = 1
+    r = int(1e6)
+    while l < r:
+        print("\r" + " " * 40 + "\r", end= "")
+        print("\rSearch distance is [{}, {}]".format(l, r), end= "")
+        m = (l + r) // 2
+        unit_size = [m]
+        unit_size.extend(size)
+        
+        start_time = time.time()
+        estimator = SizeEstimator(model, unit_size)
+        mem = estimator.estimate_size()[unit]
+        interval_time = time.time() - start_time
+        
+        if mem > max_mem or interval_time > max_time:
+            r = m - 1
+        else:
+            l = m + 1
 
+    model.to(device)
+    print("")
     assert r > 0, "Memory is shortage"
     return r
 
@@ -45,6 +57,7 @@ class Trainer():
             history         : "batch" or "epoch", optional
 
             maximum_memory  : int, optional
+            maximum_time    : int, optional
         """
     def __init__(self, model, device, keys= ["features", "label"]):
         self.model = model
@@ -61,7 +74,8 @@ class Trainer():
 
         assert len(keys) == 2
         self.keys = keys
-        self.maximum_memory = 1024 # 1GB
+        self.maximum_memory = 1024  # 1GB
+        self.maximum_time = 1       # 1s
         self.device = device
         self.metric = None
 
@@ -109,6 +123,7 @@ class Trainer():
             model= self.model, 
             size= trainset[:][self.keys[0]].shape[1:], 
             max_mem= self.maximum_memory,
+            max_time= self.maximum_time,
             device= self.device
         )
         if self.size_for_test > len(trainset):
@@ -184,13 +199,15 @@ class Trainer():
     def save(self, PATH):
         torch.save(self.model.state_dict(), PATH)
 if __name__ == "__main__":
-    a = [[1, 2], [3, 2], [2, 2], [1, 4], [4, 1], [2, 3]] * 1000
-    b = [[1], [2], [3], [2], [3], [1]] * 1000
+    a = torch.Tensor([[1, 2], [3, 2], [2, 2], [1, 4], [4, 1], [2, 3]] * 1000)
+    b = torch.Tensor([[1], [2], [3], [2], [3], [1]] * 1000)
     dataset = Dataset(a, b)
     model = nn.Sequential()
-    model.add_module("1", nn.Linear(2, 100, bias= False))
+    model.add_module("1", nn.Linear(2, 1024, bias= False))
     model.add_module("2", nn.ReLU(inplace= True))
-    model.add_module("3", nn.Linear(100, 1, bias= True))
+    model.add_module("3", nn.Linear(1024, 512, bias= True))
+    model.add_module("4", nn.Linear(512, 300, bias= False))
+    model.add_module("5", nn.Linear(300, 1))
     
     trainer = Trainer(model, "cpu")
     trainer.validation = dataset
@@ -202,5 +219,6 @@ if __name__ == "__main__":
 
 
     trainer(dataset, 3)
-    trainer(dataset, 3)
+    #trainer(dataset, 3)
+    #print(__get_reasonable_size__(model, 2, 1024, 1, "cpu"))
     
